@@ -1,0 +1,91 @@
+name: Generate Amazon Gift Card Keywords
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/generate-keywords.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate 2000 unique phrases
+        shell: python
+        run: |
+          from pathlib import Path
+
+          subjects = [
+              'amazon gift card', 'amazon gift card reward', 'amazon gift card offer',
+              'amazon gift card promotion', 'amazon gift card rewards', 'amazon gift card giveaway',
+              'amazon gift card bonus', 'amazon gift card deal', 'amazon gift card code',
+              'amazon reward', 'gift card reward', 'gift card offers', 'gift card promotion',
+              'online gift card reward', 'digital gift card', 'free gift card'
+          ]
+          amounts = ['$5', '$10', '$15', '$20', '$25', '$50', '$75', '$100', '$150', '$200', '$250', '$500']
+          modifiers = ['free', 'instant', 'online', 'digital', 'legit', 'real', 'new', 'available', 'bonus', 'verified']
+          actions = ['get', 'claim', 'earn', 'receive', 'redeem', 'qualify for', 'find', 'request', 'access', 'unlock']
+          endings = ['online', 'today', 'now', 'at home', 'without payment', 'for free', 'as a reward', 'as a bonus', 'legit', 'from promotions']
+
+          phrases = []
+          seen = set()
+          def add(s):
+              s = ' '.join(s.lower().split())
+              if s not in seen:
+                  seen.add(s)
+                  phrases.append(s)
+
+          for subject in subjects:
+              for modifier in modifiers:
+                  add(f'{modifier} {subject}')
+                  add(f'{subject} {modifier}')
+              for amount in amounts:
+                  add(f'{amount} {subject}')
+                  add(f'{subject} {amount}')
+                  for modifier in modifiers[:6]:
+                      add(f'{modifier} {amount} {subject}')
+              for action in actions:
+                  add(f'{action} {subject}')
+                  for ending in endings[:5]:
+                      add(f'{action} {subject} {ending}')
+              for ending in endings:
+                  add(f'{subject} {ending}')
+
+          # Add natural long-tail question/search phrases until exactly 2000 unique lines exist.
+          for subject in subjects:
+              for amount in amounts:
+                  for modifier in modifiers:
+                      add(f'how to get {modifier} {amount} {subject}')
+                      add(f'where to get {modifier} {amount} {subject}')
+                      add(f'how to claim {modifier} {amount} {subject}')
+                      add(f'how to redeem {modifier} {amount} {subject}')
+                      add(f'how to qualify for {amount} {subject}')
+                      add(f'best way to get {amount} {subject}')
+
+          for subject in subjects:
+              for modifier in modifiers:
+                  add(f'{subject} {modifier} offer')
+                  add(f'{subject} {modifier} promotion')
+                  add(f'{subject} {modifier} reward')
+                  add(f'{subject} {modifier} giveaway')
+                  add(f'{subject} {modifier} deal')
+                  add(f'{subject} {modifier} bonus')
+
+          if len(phrases) < 2000:
+              raise SystemExit(f'Only generated {len(phrases)} phrases')
+          phrases = phrases[:2000]
+          Path('amazon-gift-card-keywords.txt').write_text('\n'.join(phrases) + '\n', encoding='utf-8')
+          print(f'Generated {len(phrases)} unique phrases')
+
+      - name: Commit generated file and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          rm -f .github/workflows/generate-keywords.yml
+          git add amazon-gift-card-keywords.txt .github/workflows/generate-keywords.yml
+          git commit -m 'Add 2000 unique Amazon gift card keyword phrases' || exit 0
+          git push
