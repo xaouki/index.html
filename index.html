@@ -69,7 +69,7 @@
 <div class="float"><a class="btn btn-wa" id="floatWa" href="#" target="_blank" rel="noopener">💬 اطلب عبر واتساب</a></div><div class="toast" id="toast"></div>
 <script>
 const WHATSAPP='212715085109';
-const GOOGLE_SCRIPT_URL='YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL';
+const GOOGLE_SCRIPT_URL='https://script.google.com/macros/s/AKfycbziNzj7CWK1wsEk-B__sA712vBCyVztP4JWG7HAfSf5ZgSLz1nlUi6Q6h4LLWNXFZCy/exec';
 let selectedPack=1,selectedPrice=180;
 const packs=document.querySelectorAll('.pack'),heroPrice=document.getElementById('heroPrice'),sidePrice=document.getElementById('sidePrice'),sidePack=document.getElementById('sidePack');
 function setPack(pack,price){selectedPack=Number(pack);selectedPrice=Number(price);packs.forEach(p=>p.classList.toggle('active',Number(p.dataset.pack)===selectedPack));heroPrice.textContent=selectedPrice;sidePrice.textContent=selectedPrice+' DH';sidePack.textContent=(selectedPack===2?'جوج مضارب • 165 DH للمضرب':'مضرب واحد')+' • التوصيل مجاني';updateWa();}
