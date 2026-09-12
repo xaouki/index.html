@@ -7,7 +7,7 @@
  * 5) انسخ رابط Web App وضعه في index.html مكان YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL.
  */
 const SHEET_NAME = "Orders";
-const NOTIFY_EMAIL = "chaou99i@gmail.com";
+const NOTIFY_EMAIL = "chaoukimaine@gmail.com";
 
 function doPost(e) {
   try {
