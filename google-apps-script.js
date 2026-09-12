@@ -1,29 +1,40 @@
 /**
- * Google Apps Script — Startod / Mosquito Swatter
- * 1) افتح Google Sheet الذي تريد استقبال الطلبات فيه.
- * 2) Extensions > Apps Script.
- * 3) الصق هذا الكود ثم Deploy > New deployment > Web app.
- * 4) Execute as: Me / Who has access: Anyone.
- * 5) انسخ رابط Web App وضعه في index.html مكان YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL.
+ * Startod — Google Apps Script
+ * Web App: receives orders from index.html and saves them in Orders.
  */
 const SHEET_NAME = "Orders";
 const NOTIFY_EMAIL = "chaoukimaine@gmail.com";
 
+function doGet() {
+  return ContentService
+    .createTextOutput("STARTOD OK")
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents || "{}");
+    const raw = e && e.postData ? e.postData.contents : "{}";
+    const data = JSON.parse(raw || "{}");
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) sheet = ss.insertSheet(SHEET_NAME);
 
     if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["التاريخ","الاسم الكامل","الهاتف","الهاتف الثاني","المدينة","العنوان","المنتج","السعر","العملة","المصدر"]);
+      sheet.appendRow(["التاريخ","الاسم الكامل","الهاتف","الهاتف الثاني","المدينة","العنوان","المنتج","الكمية","السعر","العملة","المصدر"]);
     }
 
     sheet.appendRow([
-      new Date(), data.fullName || "", data.phone || "", data.phone2 || "",
-      data.city || "", data.address || "", data.product || "",
-      data.price || 250, data.currency || "MAD", data.source || ""
+      new Date(),
+      data.fullName || "",
+      data.phone || "",
+      data.phone2 || "",
+      data.city || "",
+      data.address || "",
+      data.product || "مضرب الباعوض الكهربائي",
+      data.quantity || 1,
+      data.price || 180,
+      data.currency || "MAD",
+      data.source || "Startod.com"
     ]);
 
     if (NOTIFY_EMAIL) {
@@ -37,19 +48,24 @@ function doPost(e) {
           "<p><b>الهاتف الثاني:</b> " + esc(data.phone2) + "</p>" +
           "<p><b>المدينة:</b> " + esc(data.city) + "</p>" +
           "<p><b>العنوان:</b> " + esc(data.address) + "</p>" +
-          "<p><b>السعر:</b> 250 MAD — التوصيل مجاني</p>"
+          "<p><b>العرض:</b> " + esc(data.quantity) + " — " + esc(data.price) + " MAD</p>"
       });
     }
 
-    return ContentService.createTextOutput(JSON.stringify({ok:true}))
+    return ContentService
+      .createTextOutput(JSON.stringify({ok:true}))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ok:false,error:String(err)}))
+    return ContentService
+      .createTextOutput(JSON.stringify({ok:false,error:String(err)}))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 function esc(v) {
-  return String(v || "").replace(/&/g,"&amp;").replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
+  return String(v || "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/\"/g,"&quot;");
 }
