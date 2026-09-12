@@ -30,8 +30,8 @@ jobs:
           url = os.environ["GOOGLE_SCRIPT_URL"]
 
           patterns = [
-              r'(const\\s+GOOGLE_SCRIPT_URL\\s*=\\s*["\']).*?(["\'])',
-              r'(GOOGLE_SCRIPT_URL\\s*[:=]\\s*["\']).*?(["\'])',
+              r'(const\s+GOOGLE_SCRIPT_URL\s*=\s*["\']).*?(["\'])',
+              r'(GOOGLE_SCRIPT_URL\s*[:=]\s*["\']).*?(["\'])',
           ]
 
           new_text = text
